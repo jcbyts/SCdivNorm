@@ -33,23 +33,23 @@ It lets you tweak the parameters of a model to generate normalization-like behav
 
 The first figure shows the output of the model neuron. 
 
-![alt text][thedata]
+![Data](thedata)
 
 You can see that the "neuron" behaves differently depending on the number of targets.
 
 If we fit a linear nonlinear poisson (LNP) model to these data, it does pretty terribly. Although it does get the right location of the RF.
 
-![alt text][LNP]
+![LNP](LNP)
 
 Finally, we can fit the divS model. This is not trivial. The LNP model is log-concave, meaning that it has a global minimum and no local minima. We only have to run one optimization routine to find it. When fitting the divS model, we initialize with the linear RF and a hacky fit to find a modulator field. We then fit the full modulated poisson model iteratively, conditioning on the RF drive and fitting the divisive Field, then condition on the output of the divisive Field and fit the RF... continue until it converges to something.
 
 This can actually capture the model alright, but I think with some tweaking, we'll do better. We have to build some code to initialize cleverly and learn the hyperparameters (if we need them).
 
 Here's the actual fit fields:
-![alt text][divS]
+![divS](divS)
 
 And here's how it does replicating the behavior of the neuron
-![alt text][divSsta]
+![divS STA](divSsta)
 
 [thedata]: https://github.com/jcbyts/SCdivNorm/tree/master/figures/simulationSTA.png "The Data"
 
