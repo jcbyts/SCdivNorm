@@ -27,34 +27,31 @@ Of course, we need some comparison points (models that fail). For these we will 
 We compare those to divisive suppression (divS).
 
 
-In this repo, you will find a sub-directory called `analyses/2019_initial_simulations' that contains the file `scnormsim.m`. Edit that file and save a copy so you can play with stuff. 
+In this repo, you will find a sub-directory called `analyses/2019_initial_simulations` that contains the file `scnormsim.m`. Edit that file and save a copy so you can play with stuff. 
 
 It lets you tweak the parameters of a model to generate normalization-like behavior from an SC neuron.
 
 The first figure shows the output of the model neuron. 
 
-![Data](https://github.com/jcbyts/SCdivNorm/tree/master/figures/simulationSTA.png)
+![Data][thedata]
 
 You can see that the "neuron" behaves differently depending on the number of targets.
 
 If we fit a linear nonlinear poisson (LNP) model to these data, it does pretty terribly. Although it does get the right location of the RF.
 
-![LNP](LNP)
+![LNP][LNP]
 
 Finally, we can fit the divS model. This is not trivial. The LNP model is log-concave, meaning that it has a global minimum and no local minima. We only have to run one optimization routine to find it. When fitting the divS model, we initialize with the linear RF and a hacky fit to find a modulator field. We then fit the full modulated poisson model iteratively, conditioning on the RF drive and fitting the divisive Field, then condition on the output of the divisive Field and fit the RF... continue until it converges to something.
 
 This can actually capture the model alright, but I think with some tweaking, we'll do better. We have to build some code to initialize cleverly and learn the hyperparameters (if we need them).
 
 Here's the actual fit fields:
-![divS](divS)
+![divS][divS]
 
 And here's how it does replicating the behavior of the neuron
-![divS STA](divSsta)
+![divS STA][divSsta]
 
-
-[LNP]: https://github.com/jcbyts/SCdivNorm/tree/master/figures/lnpSTA.png "LNP fit"
-
-
-[divS]: https://github.com/jcbyts/SCdivNorm/tree/master/figures/divSfits.png "divS fit"
-
-[divSsta]: https://github.com/jcbyts/SCdivNorm/tree/master/figures/divSsta.png "divS STA"
+[thedata]: ./figures/simulationSTA.png "The Data"
+[LNP]: ./figures/lnpSTA.png "LNP fit"
+[divS]: ./figures/divSfits.png "divS fit"
+[divSsta]: ./figures/divSsta.png "divS STA"
