@@ -33,7 +33,7 @@ It lets you tweak the parameters of a model to generate normalization-like behav
 
 The first figure shows the output of the model neuron. 
 
-![Data](thedata)
+![Data](https://github.com/jcbyts/SCdivNorm/tree/master/figures/simulationSTA.png)
 
 You can see that the "neuron" behaves differently depending on the number of targets.
 
@@ -51,7 +51,6 @@ Here's the actual fit fields:
 And here's how it does replicating the behavior of the neuron
 ![divS STA](divSsta)
 
-[thedata]: https://github.com/jcbyts/SCdivNorm/tree/master/figures/simulationSTA.png "The Data"
 
 [LNP]: https://github.com/jcbyts/SCdivNorm/tree/master/figures/lnpSTA.png "LNP fit"
 
