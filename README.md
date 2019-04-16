@@ -9,9 +9,15 @@ We approach the problem probabilistically by defining a generative model of the 
 
 Spike counts at time bin $t$ are generated from a poisson process with rate $\lambda(t)$ and bin size $\Delta$,
 
-$r(t)\sim Poiss(\lambda(t)\Delta)$, and
+![](./figures/poisson.gif)
 
-$\lambda(t) = f\big[ g_e[k_e\cdot s(t)] \times g_s[k_s \cdot s(t)]\big]$
+
+![](./figures/rate.gif)
+<!-- $r(t)\sim Poiss(\lambda(t)\Delta)$, and
+
+
+
+$\lambda(t) = f\big[ g_e[k_e\cdot s(t)] \times g_s[k_s \cdot s(t)]\big]$ -->
 
 where $k_e$ is the neuron's receptive field and $k_s$ is the divisive field that we are interested in. $f$ is the spike nonlinearity and $g_e$ and $g_s$ are subunit nonlinearities for the receptive field and suppresive field, respectively.
 
