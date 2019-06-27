@@ -54,6 +54,9 @@ for iTrial = 1:nTrials
     end
     
     for iPresentation = 1:nPresentations
+        if ischar(bb.mFlash.stim(iTrial).flash(iPresentation).theta)
+            continue
+        end
         stimTh{flashCtr} = bb.mFlash.stim(iTrial).flash(iPresentation).theta(:);
         stimRho{flashCtr} = bb.mFlash.stim(iTrial).flash(iPresentation).radius(:);
         stimOnset(flashCtr) = onsetTimes(iPresentation);
