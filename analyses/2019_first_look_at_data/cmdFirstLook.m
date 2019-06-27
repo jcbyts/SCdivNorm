@@ -4,9 +4,12 @@ dataDir = uigetdir();
 sessionList = dir(fullfile(dataDir, '*.mat'));
 
 %%
-iSess = 1;
+iSess = 2;
 [stim, spks, params] = io.load_and_preprocess(fullfile(dataDir, sessionList(iSess).name));
 
+%% 
+figure(1); clf
+plot(spks)
 
 %%
 nStim = size(stim,2);
@@ -179,7 +182,7 @@ subplot(2,3,1)
 plotWeights([xx(~notshown) yy(~notshown)], wHatRF(1:end-1), 15*rho(~notshown).^.5);
 title('RF')
 
-f(g{1}(
+% f(g{1}(
 
 %%
 % initialize denominator
