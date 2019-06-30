@@ -1,6 +1,7 @@
 function [stim, spks, params] = load_and_preprocess(fname, varargin)
 % [stim, spks, params] = load_and_preprocess(fname, varargin)
-% 
+% This is just a quick import function
+% make a matrix for the stim and count spikes
 
 if ~exist(fname, 'file')
     if ~isempty(getpref('scDivNorm'))
@@ -87,18 +88,78 @@ params.nRhos  = numel(params.rhos);
 
 spks = zeros(flashCtr-1,sp.nClusters);
 
+% This is all for testing out a spatiotemporal RF, but probably shouldn't
+% be used
+% %% build desgn matrix and check that things worked
+% t0 = min(stimOnset);
+% t1 = max(stimOnset) + 1;
+% binSize = 0.02;
+% timeBins = t0:binSize:t1;
+% T = numel(timeBins);
+% nkt = ceil(.3/binSize);
+% 
+% flashBinned = histc(stimOnset, timeBins);
+% 
+% spbinned = nan(T, sp.nClusters);
+% for iClust = 1:sp.nClusters
+%     spbinned(:,iClust) = histc(sp.spikeTimesSecs(sp.spikeClusters==sp.clusterId(iClust)), timeBins);
+% end
+% 
+% X = zeros(T, size(stim,2));
+% inds = find(flashBinned);
+% for i = 1:numel(inds)
+%     X(inds(i),:) = stim(i,:);
+% end
+% 
+% Xd = makeStimRows(X, nkt);
+% %%
+% y = spbinned - mean(spbinned);
+% sta = Xd'*y;
+% 
+% %%
+% figure(1); clf
+
+% ax = pdsa.tight_subplot(sx, sy, 0.01, 0.01);
+% for iClust = 1:sp.nClusters
+%     set(1, 'CurrentAxes', ax(iClust))
+% %     imagesc(reshape(sta(:,iClust), nkt, []))
+%     plot(mean(reshape(sta(:,iClust), nkt, []), 2)); hold on
+%     plot(xlim, [0 0], 'k--')
+%     axis off
+% end
+% 
+% 
+% 
+% %%
+% k_rank = 1;
+% [what1map,wt1map,wx1map] = bilinearRegress_coordAscent_xtMAP(X,spbinned,num_lags,k_rank,Ctinv,Cxinv,opts);
+% plot(spbinned)
+% %%
+
+%% count spikes in a window after the flash
 win = [0 0.3];
 figure(1); clf
-for iClust = 1:sp.nClusters
-    spbinned = pdsa.binSpTimes(sp.spikeTimesSecs(sp.spikeClusters==sp.clusterId(iClust)), stimOnset, win, 0.01);
+sx = ceil(sqrt(sp.nClusters));
+sy = round(sqrt(sp.nClusters));
+ax = pdsa.tight_subplot(sx, sy, 0.02, 0.1);
+binSize = 0.01;
+countingWindow = [.04 .15]; % bins after onset
 
-    subplot(4,sp.nClusters, (0:2)*sp.nClusters + iClust)
-    imagesc(spbinned)
-    subplot(4,sp.nClusters, 3*sp.nClusters + iClust)
-    plot(nanmean(spbinned)) % used this to guess the optimal time lags
-    
-    spks(:,iClust) = nansum(spbinned(:,8),2); % guess the optimal time lags
+for iClust = 1:sp.nClusters
+    [spbinned, bcenters] = pdsa.binSpTimes(sp.spikeTimesSecs(sp.spikeClusters==sp.clusterId(iClust)), stimOnset, win, binSize);
+
+    set(gcf, 'CurrentAxes', ax(iClust))
+    plot(bcenters, nanmean(spbinned)/binSize) % used this to guess the optimal time lags
+    hold on
+    if iClust <= (sy-1) * sx
+        set(gca, 'XTickLabel', '')
+    end
+    fill(countingWindow([1 1 2 2]), [ylim, fliplr(ylim)], 'k', 'FaceAlpha', .2, 'EdgeColor', 'none' )
+    spks(:,iClust) = nansum(spbinned(:,5:8),2); % guess the optimal time lags
+    title(iClust)
 end
+
+pdsa.fixfigure(gcf, 8, [12 12])
 
 
 

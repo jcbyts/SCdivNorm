@@ -3,24 +3,24 @@ dataDir = uigetdir();
 
 sessionList = dir(fullfile(dataDir, '*.mat'));
 
-%%
+%% Load up a session
 iSess = 2;
 [stim, spks, params] = io.load_and_preprocess(fullfile(dataDir, sessionList(iSess).name));
 
-%% 
-figure(1); clf
-plot(spks)
-
+% pick some high firing rate neurons
+clusterIds = [14 16 19 20 26];
+spks = spks(:,clusterIds);
 %%
 nStim = size(stim,2);
 nTargets = unique(params.nFlashed);
-[numShown, condId] = histc(params.nFlashed, [0 2 4 inf]);
 
-% condId = ones(size(condId));
+conditionEdges = [0 2 4 inf]; % where to bin nTargs
+% conditionEdges = [0 inf]; % only one condition
+[numShown, condId] = histc(params.nFlashed, conditionEdges);
+
 conds = unique(condId);
 nConds = numel(conds);
 nUnits = size(spks,2);
-
 
 [th,rho] = meshgrid(params.thetas, params.rhos);
 
@@ -30,11 +30,15 @@ notshown = sum(match,2)==0;
 xx = rho.*cosd(th);
 yy = rho.*sind(th);
 
-
 % plot the responses, check that the STA changes with # targets
-figure(2); clf
-figure(3); clf
+f = figure(222); clf % figure for plotting
+ax2 = pdsa.tight_subplot(sx, sy, 0.01, 0.01);
+sx = ceil(sqrt(nUnits));
+sy = round(sqrt(nUnits));
+
 for iCond = 1:nConds
+    fig(iCond) = figure(iCond); clf
+    ax1 = pdsa.tight_subplot(sx, sy, 0.01, 0.01);
     
     trialIx = condId==conds(iCond);
     for iUnit = 1:nUnits
@@ -43,32 +47,33 @@ for iCond = 1:nConds
         R = R - mean(R); % subtract baseline
         X = [stim(trialIx,:) ones(sum(trialIx),1)];
         sta = X'*R;
-        ste = (X'*X + .1*eye(nStim+1))\(sta);
+        ste = (X'*X + 10*eye(nStim+1))\(sta);
         sta(end) = [];
         
-        
-        figure(3); 
-        
-        subplot(1,nUnits, iUnit)
+        figure(f)
+        f.CurrentAxes = ax2(iUnit);
         plot(sta); hold on
         
-        figure(2)
-        subplot(nUnits, nConds, (iUnit-1)*nConds + iCond)
-%         cmap = flipud(pdsa.cbrewer('seq', 'YlGnBu', 100));
+        figure(fig(iCond))
+        fig(iCond).CurrentAxes = ax1(iUnit);
+        
         colormap(parula)
         staFull = match*sta;
         staFull(notshown) = nan;
         staFull = reshape(staFull, size(xx));
-        plotWeights([xx(~notshown) yy(~notshown)], staFull(~notshown), 15*(rho(~notshown).^.55)); 
-        
+        plotWeights([xx(~notshown) yy(~notshown)], staFull(~notshown), 10*(rho(~notshown).^.55)); 
+        axis xy
+        drawnow
     end
 end
 
 
+figure(f)
+legend(arrayfun(@(x) num2str(x), conditionEdges(1:end-1), 'uni', 0))
 
 %% Try fitting
 % initlize with linear regression (across all conditions)
-kUnit = 2;
+kUnit = 1;
 R = spks(:,kUnit);
 X = stim;
 
@@ -119,13 +124,13 @@ title('LNP')
 
 
 figure(2); clf
-plot(R, 'k');
+stairs(R, 'k');
 hold on
 RhatLN = f(Xd*w1)*binSize;
 plot(RhatLN, 'r')
 xlabel('Sample #')
 ylabel('Spike Count')
-legend('Data', 'LNP')
+
 
 title(rsquared(R, RhatLN))
 
@@ -150,6 +155,7 @@ wRFInit = w1;
 figure(2)
 plot(f(Xd*wmod), 'g')
 title([rsquared(R, RhatLN) rsquared(R, f(Xd*wmod))])
+legend('Data', 'LNP', '+gain')
 %% Fit gain model
 % change the likelihood function to the modulated poisson model
 mstruct.neglogli = @regression.neglogli_modulated_poiss;
@@ -164,7 +170,7 @@ mstruct.priargs = {blkdiag(Cinv, 0.1)};
 
 maxIter = 100; % maximum iterations to try
 
-lambda = 1;
+lambda = 1; % regularization
 
 % set up the cost function
 fun = @(w) regression.neglogpost_GLM(w, lambda, mstruct);
@@ -182,9 +188,6 @@ subplot(2,3,1)
 plotWeights([xx(~notshown) yy(~notshown)], wHatRF(1:end-1), 15*rho(~notshown).^.5);
 title('RF')
 
-% f(g{1}(
-
-%%
 % initialize denominator
 
 % then generate the output of the RF, that gets passed into the likelihood
