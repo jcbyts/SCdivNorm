@@ -155,7 +155,7 @@ for iClust = 1:sp.nClusters
         set(gca, 'XTickLabel', '')
     end
     fill(countingWindow([1 1 2 2]), [ylim, fliplr(ylim)], 'k', 'FaceAlpha', .2, 'EdgeColor', 'none' )
-    spks(:,iClust) = nansum(spbinned(:,5:8),2); % guess the optimal time lags
+    spks(:,iClust) = nansum(spbinned(:,5:8),2)/diff(countingWindow); % guess the optimal time lags
     title(iClust)
 end
 
